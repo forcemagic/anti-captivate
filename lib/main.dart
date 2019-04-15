@@ -36,10 +36,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    guide.entry((String state) => {
+    guide.entry((String state, {bool showBig: true}) => {
       this.setState(() {
-        this.status = state;
-        this.log.insert(0, DateFormat('H:m:s: ').format(DateTime.now()) + state);
+        if (showBig) this.status = state;
+        this.log.insert(0, DateFormat('H:mm:ss: ').format(DateTime.now()) + state);
       }),
     });
     super.initState();
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text(status, style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
             ),
             (showLog ? Expanded(
-              child: ListView.builder(itemBuilder: (BuildContext bc, int i) => Text(log[i]), itemCount: log.length),
+              child: ListView.builder(itemBuilder: (BuildContext bc, int i) => Text(log[i], style: TextStyle(fontSize: 10, fontFamily: 'monospace')), itemCount: log.length),
             ) : Container()),
           ],
         ),
