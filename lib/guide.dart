@@ -38,7 +38,7 @@ Future<void> resolveCaptivePortal() async {
   try {
     //http.Response redir = await http.get('http://captive.apple.com');
     //logNetwork(redir);
-    // TODO: Assert redirection (?) and check that we're actally on the right wifi
+    // TODO: Assert redirection (?) and check that we're actually on the right wifi
 
     http.Response logResp = await http.post('http://suliwifi-1.wificloud.ahrt.hu/login.html?redirect=redirect',
       body: 'username=diakhalo&password=$currentPassword&err_flag=&buttonClicked=4&err_msg=&info_flag=&info_msg=&redirect_url=http%3A%2F%2Fkifu.gov.hu%2F');
