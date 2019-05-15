@@ -18,10 +18,10 @@ Future<NetworkStatus> doWeHaveNetwork() async {
     callback("Running connectivity test (contacting connectivitycheck.gstatic.com)...");
     http.Response plain = await http.get('http://connectivitycheck.gstatic.com/generate_204');
     logNetwork(plain);
-    callback("Running connectivity test (contacting captive.apple.com)...");
-    http.Response plainApple = await http.get('http://captive.apple.com');
-    logNetwork(plainApple);
-    if (plain.statusCode == 204 && plainApple.statusCode == 200) {
+    //callback("Running connectivity test (contacting captive.apple.com)...");
+    //http.Response plainApple = await http.get('http://captive.apple.com');
+    //logNetwork(plainApple);
+    if (plain.statusCode == 204) {
       callback("Running encrypted connectivity test (contacting httpbin.org)...");
       http.Response encrypted = await http.get('https://httpbin.org/status/204');
       logNetwork(encrypted);
@@ -36,27 +36,17 @@ Future<NetworkStatus> doWeHaveNetwork() async {
 Future<void> resolveCaptivePortal() async {
   callback("Following redirect to captive portal (using captive.apple.com)...");
   try {
-    http.Response redir = await http.get('http://captive.apple.com');
-    logNetwork(redir);
+    //http.Response redir = await http.get('http://captive.apple.com');
+    //logNetwork(redir);
+    // TODO: Assert redirection (?) and check that we're actally on the right wifi
 
-    http.Response logResp;
-    try {
-      callback("We were redirected! Trying to be clever...");
-      String targetSite = RegExp('action\=[\"\'](.+)[\"\']').firstMatch(
-          redir.body).group(1);
-      callback("Almost there, trying to be cleverer...");
-      logResp = await http.post(
-          targetSite, body: 'username=diakhalo&password=$currentPassword');
-      logNetwork(logResp);
-    } catch (e) {
-      callback("I wanted to be clever... 😅\nNever mind. Trying backup solution...");
-      logResp = await http.post('http://suliwifi-1.wificloud.ahrt.hu/login.html?redirect=redirect',
-          body: 'username=diakhalo&password=$currentPassword&err_flag=&buttonClicked=4&err_msg=&info_flag=&info_msg=&redirect_url=http%3A%2F%2Fkifu.gov.hu%2F');
-      logNetwork(logResp);
-    }
+    http.Response logResp = await http.post('http://suliwifi-1.wificloud.ahrt.hu/login.html?redirect=redirect',
+      body: 'username=diakhalo&password=$currentPassword&err_flag=&buttonClicked=4&err_msg=&info_flag=&info_msg=&redirect_url=http%3A%2F%2Fkifu.gov.hu%2F');
+    logNetwork(logResp);
+
     if (logResp.statusCode == 200) {
-      callback("Login successful! ✔ Connection test in 2 sec...");
-      await Future.delayed(Duration(seconds: 2));
+      callback("Login successful! ✔ Connection test in a sec...");
+      await Future.delayed(Duration(seconds: 1));
       if (await doWeHaveNetwork() == NetworkStatus.online) callback("We did it!! 🥳\nYou should have Internet now.");
       else throw Exception("Sorry, I was not able to properly log in.");
     } else throw Exception("Logon failed 😔 (invalid credentials?)\n(Got ${logResp.statusCode} instead of 200)");
@@ -66,16 +56,16 @@ Future<void> resolveCaptivePortal() async {
 }
 
 Future<void> actualEntry(Connectivity con) async {
-  callback("AntiCaptivate v1.0 welcomes you! 👋\nStand by for awesomeness...");
-  await Future.delayed(Duration(seconds: 2));
+  callback("Welcome to AntiCaptivate 0.3b! 👋");
+  await Future.delayed(Duration(seconds: 1));
 
   // Check for network
   NetworkStatus ns = await doWeHaveNetwork();
   if (ns == NetworkStatus.online) {
     callback("Nothing to do! Network seems fine. 🎉");
   } else if (ns == NetworkStatus.captive) {
-    callback("Your Internet connection is limited by something. Let's fix that!");
-    await Future.delayed(Duration(seconds: 2));
+    callback("Captive portal detected, trying to login...");
+    await Future.delayed(Duration(seconds: 1));
     await resolveCaptivePortal();
   } else {
     callback("You don't seem to have Internet. 😔");
