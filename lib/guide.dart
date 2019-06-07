@@ -5,7 +5,7 @@ import 'package:connectivity/connectivity.dart';
 typedef void StatusCallback(String state, {bool showBig});
 StatusCallback callback;
 
-const String currentPassword = "3DK4KLFL";
+const String currentPassword = "M1HCS4MG";
 enum NetworkStatus { online, stripped, captive, offline }
 
 /// Utility function for logging network traffic
